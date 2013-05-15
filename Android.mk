@@ -1,7 +1,3 @@
-# We cannot use stlport on the simulator because it conficts with the host stl
-# library. Android's port also relies on bionic which is not built for the
-# simulator either.
-ifneq ($(TARGET_SIMULATOR),true)
 LOCAL_PATH := $(call my-dir)
 
 libstlport_src_files := \
@@ -46,13 +42,15 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(libstlport_src_files)
 
+# This is needed to work around the problem that libm.so in NDK does not
+# have the sincos*() functions.
+
+LOCAL_SRC_FILES += src/sincos.c
+
 LOCAL_MODULE := libstlport
 
 LOCAL_CFLAGS := $(libstlport_cflags)
 LOCAL_CPPFLAGS := $(libstlport_cppflags)
-
-LOCAL_NDK_VERSION := 4
-LOCAL_SDK_VERSION := 8
 
 include $(LOCAL_PATH)/libstlport.mk
 include $(BUILD_SHARED_LIBRARY)
@@ -67,10 +65,5 @@ LOCAL_MODULE := libstlport_static
 LOCAL_CFLAGS := $(libstlport_cflags)
 LOCAL_CPPFLAGS := $(libstlport_cppflags)
 
-LOCAL_NDK_VERSION := 4
-LOCAL_SDK_VERSION := 8
-
 include $(LOCAL_PATH)/libstlport.mk
 include $(BUILD_STATIC_LIBRARY)
-
-endif
